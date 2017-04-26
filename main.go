@@ -23,7 +23,7 @@ const b string = `
 
 func usage() {
 	fmt.Println("Displays general sentiment around tweets that are positive/negative (default setting prints both)")
-	fmt.Println("go-sentiment <KEYWORD> [OPTIONAL: positive|negative]")
+	fmt.Println("go-sentiment <KEYWORD> [positive|negative]")
 	os.Exit(1)
 }
 func main() {
@@ -33,7 +33,7 @@ func main() {
 	}
 	var condition string
 
-	if len(os.Args) >= 2 {
+	if len(os.Args) > 2 {
 		condition = os.Args[2]
 	}
 	clienv := os.Getenv("CLIENT") //LaFliJ9xgAghWIawfhyq46pBK
@@ -77,23 +77,22 @@ func main() {
 	a.classifier.Learn([]string{"tax", "weather", "news"}, Neutral)
 
 	demux.Tweet = func(tweet *twitter.Tweet) {
-		log.Println(tweet.Text)
 		r := a.Classify(tweet.Text)
-		switch r {
-		case 1:
-			if condition == "negative" {
-				return
+
+		switch condition {
+		case "positive":
+			if r == 1 {
+				fmt.Println("------------Found positive sentiment------------------")
+				fmt.Println(tweet.Text)
+				fmt.Println("------------------------------------------------------")
 			}
-			fmt.Println("------------Found positive sentiment------------------")
-			fmt.Println(tweet.Text)
-			fmt.Println("------------------------------------------------------")
-		case -1:
-			if condition == "positive" {
-				return
+		case "negative":
+			if r == -1 {
+				fmt.Println("------------Found negative sentiment------------------")
+				fmt.Println(tweet.Text)
+				fmt.Println("------------------------------------------------------")
 			}
-			fmt.Println("------------Found negative sentiment------------------")
-			fmt.Println(tweet.Text)
-			fmt.Println("------------------------------------------------------")
+
 		}
 	}
 	log.Println("Starting...")
