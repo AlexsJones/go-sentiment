@@ -1,5 +1,6 @@
 package main // package main
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -8,15 +9,33 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	"github.com/dimiro1/banner"
 )
 
+const b string = `
+{{ .AnsiColor.Blue }} _____ ____        ____  _____ _      _____  _  _      _____ _      _____
+{{ .AnsiColor.Blue }}/  __//  _ \      / ___\/  __// \  /|/__ __\/ \/ \__/|/  __// \  /|/__ __\
+{{ .AnsiColor.Blue }}| |  _| / \|_____ |    \|  \  | |\ ||  / \  | || |\/|||  \  | |\ ||  / \
+{{ .AnsiColor.Blue }}| |_//| \_/|\____\\___ ||  /_ | | \||  | |  | || |  |||  /_ | | \||  | |
+{{ .AnsiColor.Blue }}\____\\____/      \____/\____\\_/  \|  \_/  \_/\_/  \|\____\\_/  \|  \_/
+{{ .AnsiColor.Default }}
+`
+
+func usage() {
+	fmt.Println("Displays general sentiment around tweets that are positive/negative (default setting prints both)")
+	fmt.Println("go-sentiment <KEYWORD> [OPTIONAL: positive|negative]")
+	os.Exit(1)
+}
 func main() {
-
+	banner.Init(os.Stdout, true, true, bytes.NewBufferString(b))
 	if len(os.Args) < 2 {
-		fmt.Println("requires search parameter...")
-		os.Exit(1)
+		usage()
 	}
+	var condition string
 
+	if len(os.Args) >= 2 {
+		condition = os.Args[2]
+	}
 	clienv := os.Getenv("CLIENT") //LaFliJ9xgAghWIawfhyq46pBK
 	if clienv == "" {
 		fmt.Println("Missing client key")
@@ -62,10 +81,16 @@ func main() {
 		r := a.Classify(tweet.Text)
 		switch r {
 		case 1:
+			if condition == "negative" {
+				return
+			}
 			fmt.Println("------------Found positive sentiment------------------")
 			fmt.Println(tweet.Text)
 			fmt.Println("------------------------------------------------------")
 		case -1:
+			if condition == "positive" {
+				return
+			}
 			fmt.Println("------------Found negative sentiment------------------")
 			fmt.Println(tweet.Text)
 			fmt.Println("------------------------------------------------------")
