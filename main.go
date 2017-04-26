@@ -33,7 +33,7 @@ func main() {
 	}
 	var condition string
 
-	if len(os.Args) >= 2 {
+	if len(os.Args) > 2 {
 		condition = os.Args[2]
 	}
 	clienv := os.Getenv("CLIENT") //LaFliJ9xgAghWIawfhyq46pBK
