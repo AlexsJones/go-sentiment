@@ -19,8 +19,8 @@ const (
 	Neutral bayesian.Class = "Neutral"
 )
 
-//DATA_FILE dump location
-const DATA_FILE = "./sentiment-data/sentiment-classifier.dmp"
+//datafile dump location
+const datafile = "./sentiment-data/sentiment-classifier.dmp"
 
 //Analyzer struct
 type Analyzer struct {
@@ -53,14 +53,14 @@ func (a *Analyzer) Classify(s string) int {
 func NewAnalyzer() Analyzer {
 	a := Analyzer{}
 
-	_, err := os.Stat(DATA_FILE)
+	_, err := os.Stat(datafile)
 	if err != nil {
 		if os.IsNotExist(err) {
 			a.downloadDataSet()
 		}
 	}
 
-	c, err := bayesian.NewClassifierFromFile(DATA_FILE)
+	c, err := bayesian.NewClassifierFromFile(datafile)
 	if err == nil {
 		a.classifier = c
 	} else {
@@ -74,7 +74,7 @@ func NewAnalyzer() Analyzer {
 // Retrieves training data (which is much too large to keep in GitHub)
 func (a *Analyzer) downloadDataSet() {
 	os.Mkdir("./sentiment-data", 0777)
-	out, oErr := os.Create(DATA_FILE)
+	out, oErr := os.Create(datafile)
 	defer out.Close()
 	if oErr == nil {
 		r, rErr := http.Get("https://s3.amazonaws.com/socialharvest/public-data/sentiment/sentiment-classifier.dmp")
@@ -86,7 +86,7 @@ func (a *Analyzer) downloadDataSet() {
 		if rErr == nil {
 			_, nErr := io.Copy(out, r.Body)
 			if nErr != nil {
-				err := os.Remove(DATA_FILE)
+				err := os.Remove(datafile)
 				if err != nil {
 					log.Println(err)
 				}
